@@ -1,0 +1,108 @@
+.menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 250px;
+  box-sizing: border-box;
+  padding: 16px 14px;
+  overflow-y: auto;
+  background: #1c1a17;
+  color: #e8e0d0;
+  font: 13px/1.4 system-ui, sans-serif;
+  border-left: 1px solid #3a352d;
+}
+.title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #e69a28;
+}
+.group {
+  margin-bottom: 16px;
+}
+.groupTitle {
+  margin: 0 0 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9a917f;
+}
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.chip,
+.button,
+.segment button {
+  font: inherit;
+  font-size: 12px;
+  color: inherit;
+  background: #2b2823;
+  border: 1px solid #423c33;
+  border-radius: 4px;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.chip:hover,
+.button:hover,
+.segment button:hover {
+  background: #3a352d;
+}
+.chip:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.button {
+  width: 100%;
+  margin-bottom: 4px;
+  padding: 6px 8px;
+}
+.primary {
+  background: #7a200d;
+  border-color: #7a200d;
+}
+.primary:hover {
+  background: #93301a;
+}
+.segment {
+  display: flex;
+}
+.segment button {
+  flex: 1;
+  border-radius: 0;
+}
+.segment button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+.segment button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+.segment .active {
+  background: #e69a28;
+  border-color: #e69a28;
+  color: #1c1a17;
+}
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: 12px;
+  color: inherit;
+  background: #12110f;
+  border: 1px solid #423c33;
+  border-radius: 4px;
+  padding: 5px 7px;
+  margin-bottom: 4px;
+}
+.hint {
+  font-size: 11px;
+  color: #9a917f;
+  margin: 4px 0 0;
+}
+.status {
+  font-size: 11px;
+  color: #e69a28;
+  min-height: 1.4em;
+}

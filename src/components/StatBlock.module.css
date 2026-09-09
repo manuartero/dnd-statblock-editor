@@ -1,0 +1,233 @@
+.page {
+  --width: 420px;
+  display: inline-block;
+}
+.pageTwoColumns {
+  --width: 860px;
+}
+
+.pageWithImage {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 40px;
+  min-height: 720px;
+  min-width: calc(var(--width) + 520px);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.block {
+  --red: #7a200d;
+  --parchment: #fdf1dc;
+  --orange: #e69a28;
+
+  position: relative;
+  box-sizing: border-box;
+  width: var(--width);
+  padding: 16px 18px 20px;
+  font-family: 'Noto Sans', 'Scala Sans', 'Segoe UI', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.35;
+  color: #000;
+  background: var(--parchment);
+  background-image:
+    radial-gradient(ellipse at 20% 10%, rgba(255, 255, 255, 0.35), transparent 60%),
+    radial-gradient(ellipse at 80% 90%, rgba(120, 90, 40, 0.12), transparent 60%);
+  box-shadow: 0 0 1.5em rgba(80, 60, 20, 0.6);
+  text-align: left;
+}
+
+.block::before,
+.block::after {
+  content: '';
+  position: absolute;
+  left: -2px;
+  right: -2px;
+  height: 6px;
+  background: var(--orange);
+  border: 1px solid #000;
+}
+.block::before {
+  top: -4px;
+}
+.block::after {
+  bottom: -4px;
+}
+
+.twoColumns {
+  column-count: 2;
+  column-gap: 40px;
+  column-fill: balance;
+}
+
+.block > * {
+  break-inside: avoid;
+}
+
+.rule {
+  display: block;
+  width: 100%;
+  height: 5px;
+  margin: 8px 0;
+  fill: var(--red);
+}
+
+/* header */
+.name {
+  margin: 0;
+  display: block;
+  font-family: 'Libre Baskerville', 'Times New Roman', serif;
+  font-variant: small-caps;
+  font-weight: 700;
+  font-size: 23px;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+  color: var(--red);
+}
+.subtitle {
+  display: block;
+  font-style: italic;
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+/* property lines */
+.props {
+  color: var(--red);
+}
+.prop {
+  margin: 1px 0;
+}
+.propLabel {
+  font-weight: 700;
+}
+.propLabel::after {
+  content: ' ';
+}
+.propInline {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+/* abilities */
+.abilities {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  text-align: center;
+  color: var(--red);
+  margin: 4px 0;
+}
+.abilityLabel {
+  font-weight: 700;
+}
+.abilityScore {
+  display: inline-block;
+  min-width: 1.2em;
+}
+
+/* sections */
+.section {
+  margin-top: 8px;
+}
+.sectionTitle {
+  display: block;
+  font-weight: 400;
+  font-family: 'Libre Baskerville', 'Times New Roman', serif;
+  font-size: 20px;
+  color: var(--red);
+  border-bottom: 1px solid var(--red);
+  margin: 12px 0 6px;
+  line-height: 1.2;
+}
+.intro {
+  display: block;
+  font-style: italic;
+  margin: 4px 0 8px;
+}
+.entry {
+  position: relative;
+  margin: 0 0 8px;
+  padding: 0;
+}
+.entryName {
+  font-weight: 700;
+  font-style: italic;
+}
+.entryName::after {
+  content: '. ';
+  font-weight: 700;
+  font-style: italic;
+}
+
+/* editing affordances, hidden on export */
+.block [contenteditable] {
+  outline: none;
+  border-radius: 2px;
+  transition: background 0.1s;
+}
+.block [contenteditable]:hover {
+  background: rgba(122, 32, 13, 0.08);
+}
+.block [contenteditable]:focus {
+  background: rgba(122, 32, 13, 0.14);
+  box-shadow: 0 0 0 1px rgba(122, 32, 13, 0.4);
+}
+.block [contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  opacity: 0.45;
+}
+
+.remove {
+  position: absolute;
+  left: -16px;
+  top: 1px;
+  width: 14px;
+  height: 14px;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  line-height: 14px;
+  cursor: pointer;
+  opacity: 0;
+}
+.entry:hover > .remove,
+.prop:hover > .remove,
+.section:hover > .sectionHead > .remove {
+  opacity: 0.85;
+}
+.sectionHead {
+  position: relative;
+}
+.sectionHead > .remove {
+  top: 16px;
+}
+.add {
+  display: inline-block;
+  border: 1px dashed var(--red);
+  background: transparent;
+  color: var(--red);
+  font: inherit;
+  font-size: 11px;
+  padding: 0 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  opacity: 0.35;
+  margin-top: 2px;
+}
+.add:hover {
+  opacity: 1;
+}
+
+/* set on the page while exporting: editor-only controls disappear from layout */
+.page[data-exporting] :global(.ui-only) {
+  display: none;
+}
+.page[data-exporting] [contenteditable]:hover {
+  background: transparent;
+}

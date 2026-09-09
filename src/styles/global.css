@@ -1,0 +1,16 @@
+html,
+body {
+  margin: 0;
+  background: #2a2723;
+  color: #000;
+}
+
+.canvas {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 40px 290px 40px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: auto;
+}
