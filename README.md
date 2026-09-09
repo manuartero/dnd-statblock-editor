@@ -17,3 +17,15 @@ pnpm dev
 ```
 
 Stack: Vite, Preact, TypeScript, CSS Modules, `html-to-image` for PNG export, `lz-string` for the URL.
+
+## Icons
+
+Game iconography (dice, damage types, actions, spells, classes, weapons...) comes from
+[bg3.wiki](https://bg3.wiki) and lives in `public/icons/bg3/`, sorted into folders by the wiki's
+own file categories. See `public/icons/bg3/README.md` for the folder map.
+
+```sh
+pnpm icons                  # fetch everything; re-runs only download changed files
+pnpm icons -- --only spells # one folder (prefix match)
+pnpm icons -- --dry-run     # show what would be fetched
+```
