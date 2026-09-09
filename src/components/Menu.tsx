@@ -133,6 +133,26 @@ export function Menu({ creature, update, replace }: Props) {
       </div>
 
       <div class={s.group}>
+        <p class={s.groupTitle}>Iconography</p>
+        <div class={s.segment}>
+          {([false, true] as const).map((on) => (
+            <button
+              key={String(on)}
+              class={creature.icons === on ? s.active : undefined}
+              onClick={() => update((c) => ({ ...c, icons: on }))}
+              type="button"
+            >
+              {on ? 'Game icons' : 'Text only'}
+            </button>
+          ))}
+        </div>
+        <p class={s.hint}>
+          Weapon icons after attack names, dice and damage-type icons in descriptions, and one pip per spell
+          slot in the spellcasting section.
+        </p>
+      </div>
+
+      <div class={s.group}>
         <p class={s.groupTitle}>Image</p>
         <input
           class={s.input}

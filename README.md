@@ -8,6 +8,9 @@ add sections from the side menu, drop in an image, and export the result as PNG 
   traits, actions, bonus actions, reactions, legendary actions, spellcasting or custom sections as needed.
 - Ability modifiers are computed. Everything else is free text.
 - `*italic*` and `**bold**` work inside descriptions.
+- Optional iconography (Layout → Iconography): weapon icons after attack names ("Shortsword"),
+  a die icon before every `1d6`, a damage-type icon after every "piercing damage", and one pip per
+  spell slot in the spellcasting section ("1st level (4 slots)", "3/day each", cantrips).
 
 ## Run
 

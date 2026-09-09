@@ -11,7 +11,9 @@ export function readCreatureFromUrl(): Creature | null {
     const json = decompress(hash)
     if (!json) return null
     const parsed = JSON.parse(json) as Creature
-    return parsed && typeof parsed.name === 'string' ? parsed : null
+    if (!parsed || typeof parsed.name !== 'string') return null
+    // Links made before a field existed simply lack it.
+    return { ...parsed, icons: parsed.icons === true }
   } catch {
     return null
   }

@@ -156,10 +156,51 @@
   font-weight: 700;
   font-style: italic;
 }
-.entryName::after {
-  content: '. ';
+.entryHead::after {
+  content: '\2060. ';
   font-weight: 700;
   font-style: italic;
+}
+
+/* game iconography (opt-in, injected as <img class="icon icon-…">) */
+.block :global(.icon-group) {
+  white-space: nowrap;
+}
+.block :global(.icon) {
+  display: inline-block;
+  height: 1.15em;
+  width: auto;
+  vertical-align: -0.25em;
+  margin: 0;
+  user-select: none;
+  pointer-events: none;
+}
+.block :global(.icon-weapon) {
+  height: 1.35em;
+  vertical-align: -0.35em;
+  margin: 0 -0.1em 0 0.15em;
+}
+.block :global(.icon-die) {
+  height: 1.25em;
+  vertical-align: -0.3em;
+  margin: 0 0.05em 0 0;
+}
+.block :global(.icon-damage) {
+  height: 1.1em;
+  vertical-align: -0.2em;
+  margin: 0 -0.1em 0 0.05em;
+}
+.block :global(.icon-slot) {
+  height: 0.9em;
+  vertical-align: -0.1em;
+  margin: 0 0.03em;
+}
+.block :global(.icon-slot[alt='cantrip']) {
+  height: 1.05em;
+  vertical-align: -0.18em;
+}
+.entryHead > :global(.icon-slot:first-of-type) {
+  margin-left: 0.3em;
 }
 
 /* editing affordances, hidden on export */

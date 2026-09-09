@@ -10,6 +10,7 @@ import {
   type Section,
 } from '../model'
 import { Editable } from './Editable'
+import { spellSlotIcons, weaponIcon } from '../icons'
 import s from './StatBlock.module.css'
 
 /** Class marking editor-only controls; the PNG exporter strips them. */
@@ -64,7 +65,7 @@ export function StatBlock({ creature, update }: Props) {
           </>
         )}
         {creature.sections.map((section) => (
-          <SectionView key={section.id} section={section} update={update} />
+          <SectionView key={section.id} section={section} icons={creature.icons} update={update} />
         ))}
       </article>
     </div>
@@ -168,7 +169,10 @@ function Attributes({ creature, update }: Props) {
   )
 }
 
-function SectionView({ section, update }: { section: Section; update: Update }) {
+/** Sections whose entry names are attacks, where a weapon icon makes sense. */
+const WEAPON_SECTIONS = new Set<Section['kind']>(['actions', 'bonus', 'reactions', 'legendary'])
+
+function SectionView({ section, icons, update }: { section: Section; icons: boolean; update: Update }) {
   const patchSection = (patch: Partial<Section>) =>
     update((c) => ({
       ...c,
@@ -183,6 +187,23 @@ function SectionView({ section, update }: { section: Section; update: Update }) 
     update((c) => ({ ...c, sections: c.sections.filter((sec) => sec.id !== section.id) }))
 
   const hasHeading = section.kind !== 'traits'
+  const nameIcon = (name: string) => {
+    if (!icons) return null
+    if (WEAPON_SECTIONS.has(section.kind)) {
+      const src = weaponIcon(name)
+      return src && <img class="icon icon-weapon" src={src} alt="" draggable={false} />
+    }
+    if (section.kind === 'spellcasting') {
+      const slots = spellSlotIcons(name)
+      return (
+        slots &&
+        Array.from({ length: slots.count }, (_, i) => (
+          <img key={i} class="icon icon-slot" src={slots.src} alt={slots.alt} draggable={false} />
+        ))
+      )
+    }
+    return null
+  }
 
   return (
     <section class={s.section}>
@@ -204,6 +225,7 @@ function SectionView({ section, update }: { section: Section; update: Update }) 
             value={section.intro}
             multiline
             rich
+            icons={icons}
             placeholder="Intro paragraph"
             onChange={(intro) => patchSection({ intro })}
           />
@@ -212,16 +234,21 @@ function SectionView({ section, update }: { section: Section; update: Update }) 
       {section.entries.map((entry) => (
         <p key={entry.id} class={s.entry}>
           <RemoveButton onClick={() => removeEntry(entry.id)} title="Remove entry" />
-          <Editable
-            class={s.entryName}
-            value={entry.name}
-            placeholder="Name"
-            onChange={(name) => patchEntry(entry.id, { name })}
-          />
+          <span class={s.entryHead}>
+            <Editable
+              class={s.entryName}
+              value={entry.name}
+              placeholder="Name"
+              onChange={(name) => patchEntry(entry.id, { name })}
+            />
+            {'\u2060' /* word joiner: never wrap between the name and its icon */}
+            {nameIcon(entry.name)}
+          </span>
           <Editable
             value={entry.text}
             multiline
             rich
+            icons={icons}
             placeholder="Description. Use *italic* and **bold**."
             onChange={(text) => patchEntry(entry.id, { text })}
           />

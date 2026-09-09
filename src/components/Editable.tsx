@@ -11,6 +11,8 @@ interface Props {
   multiline?: boolean
   /** Render *italic* / **bold** markup while not editing. */
   rich?: boolean
+  /** Also decorate dice and damage types with game icons (rich only). */
+  icons?: boolean
   placeholder?: string
 }
 
@@ -25,6 +27,7 @@ export function Editable({
   class: cls,
   multiline = false,
   rich = false,
+  icons = false,
   placeholder,
 }: Props) {
   const ref = useRef<HTMLElement>(null)
@@ -34,14 +37,15 @@ export function Editable({
     const el = ref.current
     if (!el) return
     if (editing) {
-      if (el.innerText !== value) {
+      // Icons are decoration, never part of the text: drop them while editing.
+      if (el.innerText !== value || el.querySelector('img')) {
         el.innerText = value
         placeCaretAtEnd(el)
       }
     } else {
-      el.innerHTML = rich ? renderInline(value) : renderInline(value).replace(/<\/?[bi]>/g, '')
+      el.innerHTML = rich ? renderInline(value, { icons }) : renderInline(value).replace(/<\/?[bi]>/g, '')
     }
-  }, [value, editing, rich])
+  }, [value, editing, rich, icons])
 
   const Tag = tag as 'span'
   return (

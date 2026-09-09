@@ -48,6 +48,8 @@ export interface Creature {
   /** URL or data URL. Rendered as full-page art behind the block. */
   image: string | null
   columns: 1 | 2
+  /** Decorate weapons, damage, dice and spell slots with game icons. */
+  icons: boolean
 }
 
 export const uid = () => Math.random().toString(36).slice(2, 8)
@@ -163,6 +165,7 @@ export const blankCreature = (): Creature => ({
   sections: [],
   image: null,
   columns: 1,
+  icons: false,
 })
 
 export const sampleCreature = (): Creature => ({
@@ -201,6 +204,7 @@ export const sampleCreature = (): Creature => ({
   ],
   image: null,
   columns: 1,
+  icons: false,
 })
 
 /** Book order: traits, spellcasting, actions, bonus actions, reactions, legendary, then custom. */
