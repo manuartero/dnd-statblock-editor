@@ -79,6 +79,11 @@ export function weaponIcon(name: string): string | null {
   return hit ? `${BASE}weapon-types/${hit.file}.png` : null
 }
 
+/* ------------------------------------------------------------------- armor */
+
+/** Armor Class always gets the same badge; no text matching needed. */
+export const AC_ICON = `${BASE}interface/creature-ac.png`
+
 /* -------------------------------------------------------------- spell slots */
 
 export interface SlotIcons {

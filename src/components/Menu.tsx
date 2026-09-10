@@ -147,8 +147,8 @@ export function Menu({ creature, update, replace }: Props) {
           ))}
         </div>
         <p class={s.hint}>
-          Weapon icons after attack names, dice and damage-type icons in descriptions, and one pip per spell
-          slot in the spellcasting section.
+          An AC badge next to Armor Class, weapon icons after attack names, dice and damage-type icons in
+          descriptions, and one pip per spell slot in the spellcasting section.
         </p>
       </div>
 

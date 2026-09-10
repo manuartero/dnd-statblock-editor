@@ -175,6 +175,13 @@
   user-select: none;
   pointer-events: none;
 }
+.block :global(.icon-ac) {
+  height: 1.15em;
+  vertical-align: -0.25em;
+  margin: 0 0.15em 0 0;
+  /* The BG3 badge is a white shield meant for a dark HUD; invert it for the parchment page. */
+  filter: invert(1);
+}
 .block :global(.icon-weapon) {
   height: 1.35em;
   vertical-align: -0.35em;
