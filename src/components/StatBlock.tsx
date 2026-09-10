@@ -10,7 +10,7 @@ import {
   type Section,
 } from '../model'
 import { Editable } from './Editable'
-import { spellSlotIcons, weaponIcon } from '../icons'
+import { AC_ICON, spellSlotIcons, weaponIcon } from '../icons'
 import s from './StatBlock.module.css'
 
 /** Class marking editor-only controls; the PNG exporter strips them. */
@@ -81,6 +81,7 @@ function CoreBlock({ creature, update }: Props) {
       <div class={s.prop}>
         <RemoveButton onClick={() => update((c) => ({ ...c, core: null }))} title="Remove AC/HP/Speed" />
         <span class={s.propLabel}>Armor Class</span>
+        {creature.icons && <img class="icon icon-ac" src={AC_ICON} alt="" draggable={false} />}
         <Editable value={core.ac} onChange={set('ac')} placeholder="10" />
       </div>
       <div class={s.prop}>
