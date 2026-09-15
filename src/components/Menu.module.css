@@ -55,9 +55,35 @@
   cursor: default;
 }
 .button {
+  display: block;
   width: 100%;
+  box-sizing: border-box;
   margin-bottom: 4px;
   padding: 6px 8px;
+  text-align: center;
+}
+.pair {
+  display: flex;
+  gap: 4px;
+}
+.pair > .button {
+  flex: 1;
+  min-width: 0;
+}
+.fileHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+label.button:focus-within {
+  outline: 2px solid #e69a28;
+  outline-offset: 1px;
+}
+.error {
+  color: #e8836a;
 }
 .primary {
   background: #7a200d;

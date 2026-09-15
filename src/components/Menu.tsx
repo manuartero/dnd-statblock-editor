@@ -11,24 +11,49 @@ import {
   type Creature,
   type SectionKind,
 } from '../model'
+import type { Library, Outcome } from '../library'
+import { relativeTime } from '../time'
 import s from './Menu.module.css'
 
 interface Props {
   creature: Creature
   update: (fn: (c: Creature) => Creature) => void
   replace: (c: Creature) => void
+  library: Library
+  openLibrary: () => void
 }
 
 const SECTION_KINDS = Object.keys(SECTION_LABELS) as SectionKind[]
 
-export function Menu({ creature, update, replace }: Props) {
+export function Menu({ creature, update, replace, library, openLibrary }: Props) {
   const [status, setStatus] = useState('')
+  const [libraryStatus, setLibraryStatus] = useState<Outcome | null>(null)
   const [imageUrl, setImageUrl] = useState('')
 
   const flash = (msg: string) => {
     setStatus(msg)
     setTimeout(() => setStatus(''), 2500)
   }
+
+  // Errors stay until the next action; successes fade like the other flashes.
+  const report = (outcome: Outcome) => {
+    setLibraryStatus(outcome)
+    if (outcome.ok) setTimeout(() => setLibraryStatus((o) => (o === outcome ? null : o)), 2500)
+  }
+
+  const onImportFile = async (e: Event) => {
+    const input = e.currentTarget as HTMLInputElement
+    const file = input.files?.[0]
+    input.value = ''
+    if (file) report(await library.importJson(file))
+  }
+
+  const current = library.saves.find((r) => r.id === library.currentSaveId)
+  const saveState = !current
+    ? 'Not saved yet'
+    : library.dirty
+      ? 'Unsaved changes'
+      : `Saved ${relativeTime(current.updatedAt)}`
 
   const addSection = (kind: SectionKind) =>
     update((c) => ({ ...c, sections: insertSection(c.sections, makeSection(kind)) }))
@@ -76,6 +101,33 @@ export function Menu({ creature, update, replace }: Props) {
   return (
     <aside class={s.menu}>
       <h1 class={s.title}>Stat Block</h1>
+
+      <div class={s.group}>
+        <p class={s.groupTitle}>Library</p>
+        <div class={s.pair}>
+          <button class={`${s.button} ${s.primary}`} onClick={() => report(library.save())} type="button">
+            Save
+          </button>
+          <button class={s.button} onClick={() => report(library.saveAsNew())} type="button">
+            Save as new
+          </button>
+        </div>
+        <button class={s.button} onClick={openLibrary} type="button">
+          Load…{library.saves.length > 0 ? ` (${library.saves.length})` : ''}
+        </button>
+        <div class={s.pair}>
+          <button class={s.button} onClick={() => report(library.exportJson())} type="button">
+            Export JSON
+          </button>
+          <label class={s.button}>
+            Import JSON
+            <input class={s.fileHidden} type="file" accept="application/json,.json" onChange={onImportFile} />
+          </label>
+        </div>
+        <p class={`${s.status} ${libraryStatus && !libraryStatus.ok ? s.error : ''}`}>
+          {libraryStatus ? libraryStatus.message : saveState}
+        </p>
+      </div>
 
       <div class={s.group}>
         <p class={s.groupTitle}>Add block</p>
@@ -201,7 +253,8 @@ export function Menu({ creature, update, replace }: Props) {
 
       <p class={s.hint}>
         Click any text in the block to edit it. Hover an entry for the remove button. Use *italic* and
-        **bold** in descriptions. Everything lives in the URL: nothing is saved anywhere else.
+        **bold** in descriptions. The URL always holds the current creature; saves stay in this browser's
+        storage, and Export JSON gives you a file to keep or move.
       </p>
     </aside>
   )
