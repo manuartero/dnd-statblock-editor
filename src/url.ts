@@ -3,6 +3,7 @@ import {
   decompressFromEncodedURIComponent as decompress,
 } from 'lz-string'
 import type { Creature } from './model'
+import { parseCreature } from './persist'
 
 export function readCreatureFromUrl(): Creature | null {
   const hash = location.hash.slice(1)
@@ -10,10 +11,8 @@ export function readCreatureFromUrl(): Creature | null {
   try {
     const json = decompress(hash)
     if (!json) return null
-    const parsed = JSON.parse(json) as Creature
-    if (!parsed || typeof parsed.name !== 'string') return null
-    // Links made before a field existed simply lack it.
-    return { ...parsed, icons: parsed.icons === true }
+    // Links made before a field existed simply lack it; the parser fills the defaults.
+    return parseCreature(JSON.parse(json))
   } catch {
     return null
   }
