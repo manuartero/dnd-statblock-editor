@@ -269,6 +269,10 @@
 .add:hover {
   opacity: 1;
 }
+.addRow {
+  display: inline-flex;
+  gap: 4px;
+}
 
 /* set on the page while exporting: editor-only controls disappear from layout */
 .page[data-exporting] :global(.ui-only) {

@@ -92,6 +92,15 @@ label.button:focus-within {
 .primary:hover {
   background: #93301a;
 }
+.textLibrary {
+  color: #e69a28;
+  border-color: #e69a28;
+  background: transparent;
+  font-weight: 600;
+}
+.textLibrary:hover {
+  background: rgba(230, 154, 40, 0.12);
+}
 .segment {
   display: flex;
 }

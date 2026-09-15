@@ -21,19 +21,30 @@ interface Props {
   replace: (c: Creature) => void
   library: Library
   openLibrary: () => void
+  status: string
+  setStatus: (msg: string) => void
+  /** Shows a message in the status line for a moment. */
+  flash: (msg: string) => void
+  openTextLibrary: () => void
 }
+
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform)
 
 const SECTION_KINDS = Object.keys(SECTION_LABELS) as SectionKind[]
 
-export function Menu({ creature, update, replace, library, openLibrary }: Props) {
-  const [status, setStatus] = useState('')
+export function Menu({
+  creature,
+  update,
+  replace,
+  library,
+  openLibrary,
+  status,
+  setStatus,
+  flash,
+  openTextLibrary,
+}: Props) {
   const [libraryStatus, setLibraryStatus] = useState<Outcome | null>(null)
   const [imageUrl, setImageUrl] = useState('')
-
-  const flash = (msg: string) => {
-    setStatus(msg)
-    setTimeout(() => setStatus(''), 2500)
-  }
 
   // Errors stay until the next action; successes fade like the other flashes.
   const report = (outcome: Outcome) => {
@@ -146,6 +157,17 @@ export function Menu({ creature, update, replace, library, openLibrary }: Props)
             </button>
           ))}
         </div>
+      </div>
+
+      <div class={s.group}>
+        <p class={s.groupTitle}>Text library</p>
+        <button class={`${s.button} ${s.textLibrary}`} onClick={openTextLibrary} type="button">
+          Insert from library…
+        </button>
+        <p class={s.hint}>
+          Weapon attacks, monster traits, class features, spellcasting lines and a few spells, in the
+          rulebook wording. Press {isMac ? '⌘K' : 'Ctrl+K'} to open it anywhere.
+        </p>
       </div>
 
       <div class={s.group}>
