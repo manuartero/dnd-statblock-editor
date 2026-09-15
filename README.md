@@ -3,7 +3,11 @@
 A tiny editor for D&D 5e style stat blocks (monsters or PCs). Click the text in the block to edit it,
 add sections from the side menu, drop in an image, and export the result as PNG or share it as a link.
 
-- Nothing is stored. The whole creature is compressed into the URL hash, so the link *is* the save file.
+- The whole creature is compressed into the URL hash, so a link *is* a portable copy of the creature.
+- Saves live in your browser's localStorage (no account, nothing leaves the machine): Save / Save as new,
+  and a Library screen to load, rename, duplicate or delete them.
+- Export JSON downloads a versioned file (`{ schemaVersion, id, savedAt, updatedAt, creature }`);
+  Import JSON reads one back, filling in defaults for missing fields and rejecting anything malformed.
 - Sections are modular: the minimum is a name and six ability scores. Add AC/HP/Speed, attribute lines,
   traits, actions, bonus actions, reactions, legendary actions, spellcasting or custom sections as needed.
 - Ability modifiers are computed. Everything else is free text.
