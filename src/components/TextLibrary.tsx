@@ -1,15 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
 import {
   CATEGORIES,
-  EDITIONS,
   LIBRARY,
   destination,
   resolve,
   sectionLabel,
   type Category,
-  type Edition,
   type ResolvedSnippet,
-} from '../textLibrary'
+} from '../text-library'
 import { SECTION_LABELS, type Creature, type Section } from '../model'
 import { renderInline } from '../inline'
 import s from './TextLibrary.module.css'
@@ -22,47 +20,22 @@ interface Props {
   onInsert: (snippet: ResolvedSnippet) => void
 }
 
-const EDITION_KEY = 'statblock-editor:edition'
-
-function loadEdition(): Edition {
-  try {
-    const v = localStorage.getItem(EDITION_KEY)
-    if (v === '2014' || v === '2024') return v
-  } catch {
-    /* private mode or storage disabled: fall through to the default */
-  }
-  return '2024'
-}
-
-function saveEdition(edition: Edition) {
-  try {
-    localStorage.setItem(EDITION_KEY, edition)
-  } catch {
-    /* not remembered, still applied */
-  }
-}
-
 /** Plain text of the body for the two-line preview: markup stripped, no icons. */
 const plain = (text: string) => text.replace(/\*/g, '')
+
+const RESOLVED = LIBRARY.map(resolve)
 
 export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<Category | null>(null)
-  const [edition, setEdition] = useState<Edition>(loadEdition)
   const [active, setActive] = useState(0)
   const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
 
-  const pickEdition = (e: Edition) => {
-    setEdition(e)
-    saveEdition(e)
-  }
-
   // Everything the picker may offer here: all snippets, or only those for the section it was opened from.
   const pool = useMemo(() => {
-    const all = LIBRARY.map((sn) => resolve(sn, edition))
-    return into ? all.filter((sn) => sn.kind === into.kind) : all
-  }, [edition, into])
+    return into ? RESOLVED.filter((sn) => sn.kind === into.kind) : RESOLVED
+  }, [into])
 
   const categories = useMemo(() => CATEGORIES.filter((c) => pool.some((sn) => sn.category === c)), [pool])
 
@@ -117,19 +90,6 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
       <div class={s.dialog} role="dialog" aria-modal="true" aria-label={heading} onKeyDown={onKeyDown}>
         <header class={s.head}>
           <h2 class={s.heading}>{heading}</h2>
-          <div class={s.edition} role="group" aria-label="Rules wording">
-            <span class={s.editionLabel}>Wording</span>
-            {EDITIONS.map((e) => (
-              <button
-                key={e}
-                class={edition === e ? s.editionActive : undefined}
-                onClick={() => pickEdition(e)}
-                type="button"
-              >
-                {e}
-              </button>
-            ))}
-          </div>
         </header>
 
         <input

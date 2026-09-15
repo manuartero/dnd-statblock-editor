@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
 import { sampleCreature, type Creature, type Section } from './model'
-import { insertSnippet, type ResolvedSnippet } from './textLibrary'
+import { insertSnippet, type ResolvedSnippet } from './text-library'
 import { readCreatureFromUrl, writeCreatureToUrl } from './url'
 import { useLibrary } from './library'
 import { StatBlock } from './components/StatBlock'

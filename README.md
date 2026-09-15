@@ -27,13 +27,11 @@ instead of typing them.
   Traits, Spells…), which is created if the block has none.
 - Every section also has a **+ from library** button next to **+ entry**; it opens the picker filtered to
   that section and inserts there.
-- The **2014 / 2024** toggle switches between the two wordings ("*Melee Weapon Attack:* +4 to hit…" vs
-  "*Melee Attack Roll:* +4…"). The choice is remembered in the browser.
 
-The wording comes from the System Reference Document: SRD 5.1 for the 2014 rules and SRD 5.2 for the
-2024 rules. This work includes material from the System Reference Document 5.1 and 5.2 by Wizards of the
-Coast LLC, available at <https://www.dndbeyond.com/srd>, licensed under the Creative Commons Attribution
-4.0 International License (<https://creativecommons.org/licenses/by/4.0/legalcode>).
+The wording follows the 2024 rules ("*Melee Attack Roll:* +4…"), as published in the System Reference
+Document 5.2. This work includes material from the System Reference Document 5.2 by Wizards of the Coast
+LLC, available at <https://www.dndbeyond.com/srd>, licensed under the Creative Commons Attribution 4.0
+International License (<https://creativecommons.org/licenses/by/4.0/legalcode>).
 
 ## Run
 
