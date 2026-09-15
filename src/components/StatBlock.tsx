@@ -23,13 +23,18 @@ interface Props {
   update: Update
 }
 
+interface BlockProps extends Props {
+  /** Opens the text library to add an entry to the given section. */
+  openTextLibrary: (section: Section) => void
+}
+
 const Rule = () => (
   <svg class={s.rule} viewBox="0 0 400 5" preserveAspectRatio="none" aria-hidden="true">
     <polyline points="0,0 400,2.5 0,5" />
   </svg>
 )
 
-export function StatBlock({ creature, update }: Props) {
+export function StatBlock({ creature, update, openTextLibrary }: BlockProps) {
   const pageStyle = creature.image ? { backgroundImage: `url("${creature.image}")` } : undefined
   return (
     <div id="stat-page" class={`${s.page} ${creature.image ? s.pageWithImage : ''} ${creature.columns === 2 ? s.pageTwoColumns : ''}`} style={pageStyle}>
@@ -65,7 +70,13 @@ export function StatBlock({ creature, update }: Props) {
           </>
         )}
         {creature.sections.map((section) => (
-          <SectionView key={section.id} section={section} icons={creature.icons} update={update} />
+          <SectionView
+            key={section.id}
+            section={section}
+            icons={creature.icons}
+            update={update}
+            openTextLibrary={openTextLibrary}
+          />
         ))}
       </article>
     </div>
@@ -173,7 +184,17 @@ function Attributes({ creature, update }: Props) {
 /** Sections whose entry names are attacks, where a weapon icon makes sense. */
 const WEAPON_SECTIONS = new Set<Section['kind']>(['actions', 'bonus', 'reactions', 'legendary'])
 
-function SectionView({ section, icons, update }: { section: Section; icons: boolean; update: Update }) {
+function SectionView({
+  section,
+  icons,
+  update,
+  openTextLibrary,
+}: {
+  section: Section
+  icons: boolean
+  update: Update
+  openTextLibrary: (section: Section) => void
+}) {
   const patchSection = (patch: Partial<Section>) =>
     update((c) => ({
       ...c,
@@ -255,9 +276,14 @@ function SectionView({ section, icons, update }: { section: Section; icons: bool
           />
         </p>
       ))}
-      <button class={`${s.add} ${UI_ONLY}`} onClick={addEntry} type="button">
-        + entry
-      </button>
+      <span class={s.addRow}>
+        <button class={`${s.add} ${UI_ONLY}`} onClick={addEntry} type="button">
+          + entry
+        </button>
+        <button class={`${s.add} ${UI_ONLY}`} onClick={() => openTextLibrary(section)} type="button">
+          + from library
+        </button>
+      </span>
     </section>
   )
 }

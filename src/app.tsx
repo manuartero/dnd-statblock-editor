@@ -1,15 +1,29 @@
-import { useCallback, useEffect, useState } from 'preact/hooks'
-import { sampleCreature, type Creature } from './model'
+import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
+import { sampleCreature, type Creature, type Section } from './model'
+import { insertSnippet, type ResolvedSnippet } from './text-library'
 import { readCreatureFromUrl, writeCreatureToUrl } from './url'
 import { useLibrary } from './library'
 import { StatBlock } from './components/StatBlock'
 import { Menu } from './components/Menu'
 import { LoadScreen } from './components/LoadScreen'
+import { TextLibrary } from './components/TextLibrary'
+
+/** Where the text library picker was opened from: a section, or the menu / shortcut (null). */
+type Picker = { into: Section | null }
+
+/** True while the user is typing somewhere: the Cmd/Ctrl+K shortcut must stay out of the way. */
+const isTyping = () => {
+  const el = document.activeElement as HTMLElement | null
+  return !!el && (el.isContentEditable || el.tagName === 'INPUT' || el.tagName === 'TEXTAREA')
+}
 
 export function App() {
   const [creature, setCreature] = useState<Creature>(() => readCreatureFromUrl() ?? sampleCreature())
   const [currentSaveId, setCurrentSaveId] = useState<string | null>(null)
   const [libraryOpen, setLibraryOpen] = useState(false)
+  const [picker, setPicker] = useState<Picker | null>(null)
+  const [status, setStatus] = useState('')
+  const statusTimer = useRef<ReturnType<typeof setTimeout>>()
 
   const update = useCallback((fn: (c: Creature) => Creature) => setCreature((c) => fn(c)), [])
 
@@ -21,15 +35,41 @@ export function App() {
 
   const library = useLibrary({ creature, setCreature, currentSaveId, setCurrentSaveId })
 
+  const flash = useCallback((msg: string) => {
+    setStatus(msg)
+    clearTimeout(statusTimer.current)
+    statusTimer.current = setTimeout(() => setStatus(''), 2500)
+  }, [])
+
   useEffect(() => {
     writeCreatureToUrl(creature)
     document.title = creature.name ? `${creature.name} · Stat Block` : 'Stat Block'
   }, [creature])
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && !isTyping()) {
+        e.preventDefault()
+        setPicker((p) => (p ? null : { into: null }))
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  const insert = (snippet: ResolvedSnippet) => {
+    // The picker may have been opened from a section that has since been removed.
+    const into = picker?.into ? creature.sections.find((sec) => sec.id === picker.into!.id) ?? null : null
+    const result = insertSnippet(creature, snippet, into)
+    setCreature(result.creature)
+    setPicker(null)
+    flash(`Added ${snippet.name} to ${result.title}`)
+  }
+
   return (
     <>
       <main class="canvas">
-        <StatBlock creature={creature} update={update} />
+        <StatBlock creature={creature} update={update} openTextLibrary={(section) => setPicker({ into: section })} />
       </main>
       <Menu
         creature={creature}
@@ -37,8 +77,15 @@ export function App() {
         replace={replace}
         library={library}
         openLibrary={() => setLibraryOpen(true)}
+        status={status}
+        setStatus={setStatus}
+        flash={flash}
+        openTextLibrary={() => setPicker({ into: null })}
       />
       {libraryOpen && <LoadScreen library={library} onClose={() => setLibraryOpen(false)} />}
+      {picker && (
+        <TextLibrary creature={creature} into={picker.into} onClose={() => setPicker(null)} onInsert={insert} />
+      )}
     </>
   )
 }

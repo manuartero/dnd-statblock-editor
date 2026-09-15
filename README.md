@@ -16,6 +16,23 @@ add sections from the side menu, drop in an image, and export the result as PNG 
   a die icon before every `1d6`, a damage-type icon after every "piercing damage", and one pip per
   spell slot in the spellcasting section ("1st level (4 slots)", "3/day each", cantrips).
 
+## Text library
+
+Stat blocks repeat the same chunks of text: a shortsword attack, Pack Tactics, a Sneak Attack paragraph,
+a spellcasting intro. The library holds about 120 of those in the rulebook wording, so you pick them
+instead of typing them.
+
+- Open it from the side menu (**Insert from library…**) or with `Cmd/Ctrl+K`. Search, filter by category,
+  move with the arrow keys and press Enter: the entry lands in the first matching section (Actions,
+  Traits, Spells…), which is created if the block has none.
+- Every section also has a **+ from library** button next to **+ entry**; it opens the picker filtered to
+  that section and inserts there.
+
+The wording follows the 2024 rules ("*Melee Attack Roll:* +4…"), as published in the System Reference
+Document 5.2. This work includes material from the System Reference Document 5.2 by Wizards of the Coast
+LLC, available at <https://www.dndbeyond.com/srd>, licensed under the Creative Commons Attribution 4.0
+International License (<https://creativecommons.org/licenses/by/4.0/legalcode>).
+
 ## Run
 
 ```sh

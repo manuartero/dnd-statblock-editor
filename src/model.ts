@@ -148,6 +148,12 @@ export function makeSection(kind: SectionKind): Section {
   }
 }
 
+/** Like makeSection, but with no placeholder entries: for content that arrives ready-made. */
+export function makeEmptySection(kind: SectionKind): Section {
+  const preset = SECTION_PRESETS[kind]
+  return { id: uid(), kind, title: preset.title, intro: preset.intro, entries: [] }
+}
+
 export function makeEntry(): Entry {
   return { id: uid(), name: 'Name', text: 'Describe it.' }
 }
