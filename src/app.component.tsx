@@ -69,10 +69,7 @@ export function App() {
   }
 
   return (
-    <>
-      <main class="canvas">
-        <StatBlock creature={creature} update={update} openTextLibrary={(section) => setPicker({ into: section })} />
-      </main>
+    <div class="app">
       <Menu
         creature={creature}
         update={update}
@@ -84,10 +81,13 @@ export function App() {
         flash={flash}
         openTextLibrary={() => setPicker({ into: null })}
       />
+      <main class="canvas">
+        <StatBlock creature={creature} update={update} openTextLibrary={(section) => setPicker({ into: section })} />
+      </main>
       {libraryOpen && <LoadScreen library={library} onClose={() => setLibraryOpen(false)} />}
       {picker && (
         <TextLibrary creature={creature} into={picker.into} onClose={() => setPicker(null)} onInsert={insert} />
       )}
-    </>
+    </div>
   )
 }
