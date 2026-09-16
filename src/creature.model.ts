@@ -52,6 +52,9 @@ export type Creature = {
   icons: boolean
 }
 
+/** Edits the creature from the current one; the editor's single write path. */
+export type UpdateCreature = (fn: (c: Creature) => Creature) => void
+
 export const uid = () => Math.random().toString(36).slice(2, 8)
 
 export const modifier = (score: number) => {

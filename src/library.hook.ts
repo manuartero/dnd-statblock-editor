@@ -120,5 +120,5 @@ export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSav
     return ok(`Imported ${record.creature.name || 'creature'}`)
   }
 
-  return { saves, currentSaveId, dirty, save, saveAsNew, load, duplicate, rename, remove, exportJson, importJson }
+  return { saves, currentSaveId, current, dirty, save, saveAsNew, load, duplicate, rename, remove, exportJson, importJson }
 }

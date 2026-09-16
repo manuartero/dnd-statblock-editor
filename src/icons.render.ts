@@ -6,8 +6,9 @@
 
 const BASE = `${import.meta.env.BASE_URL}icons/bg3/`
 
-const icon = ({ file, kind, alt }: { file: string; kind: string; alt: string }) =>
-  `<img class="icon icon-${kind}" src="${BASE}${file}" alt="${alt}" draggable="false">`
+/** Decorative: the icon always sits next to the words it illustrates. */
+const icon = ({ file, kind }: { file: string; kind: string }) =>
+  `<img class="icon icon-${kind}" src="${BASE}${file}" alt="" draggable="false">`
 
 /* ------------------------------------------------------------------ weapons */
 
@@ -161,10 +162,10 @@ export function iconifyHtml(html: string) {
       if (dice) {
         const size = dice.slice(dice.indexOf('d'))
         const file = size === 'd20' ? 'd20' : `${size}-${dieColour({ text: html, at: offset + match.length })}`
-        return group(`${paren}${icon({ file: `dice/${file}.png`, kind: 'die', alt: size })}${dice}`)
+        return group(`${paren}${icon({ file: `dice/${file}.png`, kind: 'die' })}${dice}`)
       }
       const type = phrase!.split(/\s+/)[0].toLowerCase()
-      return group(`${phrase}${icon({ file: `damage-types/${type}-damage.png`, kind: 'damage', alt: type })}${punct}`)
+      return group(`${phrase}${icon({ file: `damage-types/${type}-damage.png`, kind: 'damage' })}${punct}`)
     },
   )
 }

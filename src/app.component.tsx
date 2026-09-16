@@ -6,7 +6,7 @@ import type { ResolvedSnippet } from './text-library.model'
 import { readCreatureFromUrl, writeCreatureToUrl } from './url.service'
 import { useLibrary } from './library.hook'
 import { StatBlock } from './stat-block.component'
-import { Menu } from './menu.component'
+import { Menu } from './menu/menu.component'
 import { LoadScreen } from './load-screen.component'
 import { TextLibrary } from './text-library.component'
 
@@ -36,6 +36,8 @@ export function App() {
   }, [])
 
   const library = useLibrary({ creature, setCreature, currentSaveId, setCurrentSaveId })
+
+  const closeLibrary = useCallback(() => setLibraryOpen(false), [])
 
   const flash = useCallback((msg: string) => {
     setStatus(msg)
@@ -84,7 +86,7 @@ export function App() {
       <main class="canvas">
         <StatBlock creature={creature} update={update} openTextLibrary={(section) => setPicker({ into: section })} />
       </main>
-      {libraryOpen && <LoadScreen library={library} onClose={() => setLibraryOpen(false)} />}
+      {libraryOpen && <LoadScreen library={library} onClose={closeLibrary} />}
       {picker && (
         <TextLibrary creature={creature} into={picker.into} onClose={() => setPicker(null)} onInsert={insert} />
       )}
