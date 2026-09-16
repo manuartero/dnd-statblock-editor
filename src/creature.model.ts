@@ -1,7 +1,7 @@
 export const ABILITIES = ['str', 'dex', 'con', 'int', 'wis', 'cha'] as const
 export type Ability = (typeof ABILITIES)[number]
 
-export interface Entry {
+export type Entry = {
   id: string
   name: string
   text: string
@@ -16,7 +16,7 @@ export type SectionKind =
   | 'spellcasting'
   | 'custom'
 
-export interface Section {
+export type Section = {
   id: string
   kind: SectionKind
   /** Empty title renders the entries without a heading (traits). */
@@ -26,19 +26,19 @@ export interface Section {
   entries: Entry[]
 }
 
-export interface AttrLine {
+export type AttrLine = {
   id: string
   label: string
   value: string
 }
 
-export interface Core {
+export type Core = {
   ac: string
   hp: string
   speed: string
 }
 
-export interface Creature {
+export type Creature = {
   name: string
   subtitle: string
   core: Core | null
@@ -137,7 +137,7 @@ export const SECTION_LABELS: Record<SectionKind, string> = {
   custom: 'Custom section',
 }
 
-export function makeSection(kind: SectionKind): Section {
+export function makeSection(kind: SectionKind) {
   const preset = SECTION_PRESETS[kind]
   return {
     id: uid(),
@@ -154,11 +154,11 @@ export function makeEmptySection(kind: SectionKind): Section {
   return { id: uid(), kind, title: preset.title, intro: preset.intro, entries: [] }
 }
 
-export function makeEntry(): Entry {
+export function makeEntry() {
   return { id: uid(), name: 'Name', text: 'Describe it.' }
 }
 
-export function makeAttribute(label: string): AttrLine {
+export function makeAttribute(label: string) {
   return { id: uid(), label, value: '—' }
 }
 
@@ -217,7 +217,7 @@ export const sampleCreature = (): Creature => ({
 const SECTION_ORDER: SectionKind[] = ['traits', 'spellcasting', 'actions', 'bonus', 'reactions', 'legendary', 'custom']
 
 /** Inserts a section after the last one of the same or an earlier kind. */
-export function insertSection(sections: Section[], section: Section): Section[] {
+export function insertSection({ sections, section }: { sections: Section[]; section: Section }) {
   const rank = (kind: SectionKind) => SECTION_ORDER.indexOf(kind)
   let index = sections.length
   while (index > 0 && rank(sections[index - 1].kind) > rank(section.kind)) index--

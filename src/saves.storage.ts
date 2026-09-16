@@ -1,22 +1,23 @@
-import { makeRecord, parseSaveRecord, type SaveRecord } from './persist'
+import { makeRecord, parseSaveRecord } from './save-record.model'
+import type { SaveRecord } from './save-record.model'
 
 /**
  * All saves live under one localStorage key as an array of records.
  * Every access is guarded: private mode, disabled storage and quota limits
- * all surface as a `StorageError` with a message fit for the UI.
+ * all surface as a storage error with a message fit for the UI.
  */
 
 const KEY = 'statblock.saves.v1'
 
-export class StorageError extends Error {
-  constructor(
-    public kind: 'quota' | 'unavailable',
-    message: string,
-  ) {
-    super(message)
-    this.name = 'StorageError'
-  }
+const STORAGE_ERROR = 'StorageError'
+
+const storageError = (message: string) => {
+  const err = new Error(message)
+  err.name = STORAGE_ERROR
+  return err
 }
+
+export const isStorageError = (err: unknown) => err instanceof Error && err.name === STORAGE_ERROR
 
 const QUOTA_MESSAGE =
   'Browser storage is full. Embedded images make creatures big: use an image URL instead of an upload, or delete old saves.'
@@ -26,7 +27,7 @@ const isQuotaError = (err: unknown) =>
   err instanceof DOMException &&
   (err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED' || err.code === 22 || err.code === 1014)
 
-function readAll(): SaveRecord[] {
+function readAll() {
   let raw: string | null
   try {
     raw = localStorage.getItem(KEY)
@@ -52,23 +53,22 @@ function writeAll(records: SaveRecord[]) {
   try {
     localStorage.setItem(KEY, JSON.stringify(records))
   } catch (err) {
-    if (isQuotaError(err)) throw new StorageError('quota', QUOTA_MESSAGE)
-    throw new StorageError('unavailable', UNAVAILABLE_MESSAGE)
+    throw storageError(isQuotaError(err) ? QUOTA_MESSAGE : UNAVAILABLE_MESSAGE)
   }
 }
 
 const byNewest = (a: SaveRecord, b: SaveRecord) => (a.updatedAt < b.updatedAt ? 1 : a.updatedAt > b.updatedAt ? -1 : 0)
 
 /** Newest first. */
-export function listSaves(): SaveRecord[] {
+export function listSaves() {
   return readAll().sort(byNewest)
 }
 
-export function getSave(id: string): SaveRecord | null {
+export function getSave(id: string) {
   return readAll().find((r) => r.id === id) ?? null
 }
 
-/** Inserts or replaces by id. Throws `StorageError`. */
+/** Inserts or replaces by id. Throws a storage error. */
 export function putSave(record: SaveRecord) {
   const all = readAll()
   const index = all.findIndex((r) => r.id === record.id)
@@ -77,22 +77,22 @@ export function putSave(record: SaveRecord) {
   writeAll(all)
 }
 
-/** Throws `StorageError`. */
+/** Throws a storage error. */
 export function deleteSave(id: string) {
   writeAll(readAll().filter((r) => r.id !== id))
 }
 
-/** Copies a save under a new id. Returns the copy, or `null` if the id is unknown. Throws `StorageError`. */
-export function duplicateSave(id: string): SaveRecord | null {
+/** Copies a save under a new id. Returns the copy, or `null` if the id is unknown. Throws a storage error. */
+export function duplicateSave(id: string) {
   const source = getSave(id)
   if (!source) return null
-  const copy = makeRecord({ ...source.creature, name: `${source.creature.name} (copy)` })
+  const copy = makeRecord({ creature: { ...source.creature, name: `${source.creature.name} (copy)` } })
   putSave(copy)
   return copy
 }
 
-/** Changes the creature's name inside a save. Throws `StorageError`. */
-export function renameSave(id: string, name: string): SaveRecord | null {
+/** Changes the creature's name inside a save. Throws a storage error. */
+export function renameSave({ id, name }: { id: string; name: string }) {
   const source = getSave(id)
   if (!source) return null
   const renamed: SaveRecord = {
@@ -104,5 +104,4 @@ export function renameSave(id: string, name: string): SaveRecord | null {
   return renamed
 }
 
-export const describeError = (err: unknown): string =>
-  err instanceof StorageError ? err.message : err instanceof Error ? err.message : 'Something went wrong.'
+export const describeError = (err: unknown) => (err instanceof Error ? err.message : 'Something went wrong.')

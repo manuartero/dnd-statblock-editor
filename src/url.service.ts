@@ -2,10 +2,10 @@ import {
   compressToEncodedURIComponent as compress,
   decompressFromEncodedURIComponent as decompress,
 } from 'lz-string'
-import type { Creature } from './model'
-import { parseCreature } from './persist'
+import type { Creature } from './creature.model'
+import { parseCreature } from './save-record.model'
 
-export function readCreatureFromUrl(): Creature | null {
+export function readCreatureFromUrl() {
   const hash = location.hash.slice(1)
   if (!hash) return null
   try {

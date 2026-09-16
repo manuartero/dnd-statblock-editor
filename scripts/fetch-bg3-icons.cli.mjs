@@ -74,13 +74,13 @@ const ONLY = (() => {
 
 // ---------------------------------------------------------------------------------------- wiki API
 
-async function fetchWithRetry(url, attempt = 0) {
+async function fetchWithRetry({ url, attempt = 0 }) {
   const res = await fetch(url, { headers: { 'user-agent': USER_AGENT } })
   if ((res.status === 429 || res.status >= 500) && attempt < 5) {
     const wait = 1000 * 2 ** attempt
     console.warn(`  ${res.status} from wiki, retrying in ${wait}ms`)
     await new Promise((r) => setTimeout(r, wait))
-    return fetchWithRetry(url, attempt + 1)
+    return fetchWithRetry({ url, attempt: attempt + 1 })
   }
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
   return res
@@ -89,7 +89,7 @@ async function fetchWithRetry(url, attempt = 0) {
 async function api(params) {
   const url = new URL(API)
   url.search = new URLSearchParams({ format: 'json', formatversion: '2', maxlag: '5', ...params })
-  const json = await (await fetchWithRetry(url)).json()
+  const json = await (await fetchWithRetry({ url })).json()
   if (json.error) throw new Error(`API error ${json.error.code}: ${json.error.info}`)
   return json
 }
@@ -124,7 +124,7 @@ async function categoryMembers(category) {
 }
 
 /** Walks a source's category tree and returns [{ title, folder, category }]. */
-async function collect(source, seen) {
+async function collect({ source, seen }) {
   const out = []
   const visited = new Set()
   const queue = [{ category: source.category, folder: source.folder }]
@@ -222,14 +222,14 @@ async function download(entry) {
   const dest = join(OUT_DIR, entry.file)
   if (!FORCE && existsSync(dest) && (await localSha1(dest)) === entry.sha1) return 'skipped'
   if (DRY_RUN) return 'would-download'
-  const res = await fetchWithRetry(entry.url)
+  const res = await fetchWithRetry({ url: entry.url })
   const bytes = new Uint8Array(await res.arrayBuffer())
   await mkdir(dirname(dest), { recursive: true })
   await writeFile(dest, bytes)
   return 'downloaded'
 }
 
-async function runPool(items, worker, concurrency) {
+async function runPool({ items, worker, concurrency }) {
   const results = new Array(items.length)
   let next = 0
   await Promise.all(
@@ -253,7 +253,7 @@ async function main() {
   const seen = new Set()
   const entries = []
   for (const source of sources) {
-    const found = await collect(source, seen)
+    const found = await collect({ source, seen })
     console.log(`  ${source.folder.padEnd(18)} ${String(found.length).padStart(5)} files  (Category:${source.category})`)
     entries.push(...found)
   }
@@ -279,9 +279,9 @@ async function main() {
   console.log(`${DRY_RUN ? 'Checking' : 'Downloading'} ${icons.length} icons into ${relative(ROOT, OUT_DIR)}/ ...`)
   const tally = { downloaded: 0, skipped: 0, 'would-download': 0, failed: 0 }
   let done = 0
-  await runPool(
-    icons,
-    async (icon) => {
+  await runPool({
+    items: icons,
+    worker: async (icon) => {
       try {
         tally[await download(icon)]++
       } catch (err) {
@@ -290,8 +290,8 @@ async function main() {
       }
       if (++done % 250 === 0) console.log(`  ${done}/${icons.length}`)
     },
-    DOWNLOAD_CONCURRENCY,
-  )
+    concurrency: DOWNLOAD_CONCURRENCY,
+  })
 
   if (!DRY_RUN) {
     await mkdir(OUT_DIR, { recursive: true })

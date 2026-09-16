@@ -6,7 +6,7 @@
 
 const BASE = `${import.meta.env.BASE_URL}icons/bg3/`
 
-const icon = (file: string, kind: string, alt: string) =>
+const icon = ({ file, kind, alt }: { file: string; kind: string; alt: string }) =>
   `<img class="icon icon-${kind}" src="${BASE}${file}" alt="${alt}" draggable="false">`
 
 /* ------------------------------------------------------------------ weapons */
@@ -74,7 +74,7 @@ const WEAPON_PATTERNS = Object.entries(WEAPONS)
   }))
 
 /** Icon URL for a weapon mentioned in an action name ("Shortsword", "+1 Longbow (two-handed)"). */
-export function weaponIcon(name: string): string | null {
+export function weaponIcon(name: string) {
   const hit = WEAPON_PATTERNS.find(({ re }) => re.test(name))
   return hit ? `${BASE}weapon-types/${hit.file}.png` : null
 }
@@ -86,18 +86,12 @@ export const AC_ICON = `${BASE}interface/armour-class-icon-frame.png`
 
 /* -------------------------------------------------------------- spell slots */
 
-export interface SlotIcons {
-  src: string
-  count: number
-  alt: string
-}
-
 /**
  * Spell slots are never written literally in a block, only implied:
  * "1st level (4 slots)", "Cantrips (at will)", "3/day each". Turn those into
  * one slot pip per slot, or the cantrip badge for at-will casting.
  */
-export function spellSlotIcons(entryName: string): SlotIcons | null {
+export function spellSlotIcons(entryName: string) {
   const slots = entryName.match(/(\d+)\s*(?:slots?|\/\s*day)/i)
   if (slots) {
     const count = Math.min(parseInt(slots[1], 10), 9)
@@ -146,7 +140,7 @@ const TOKEN = new RegExp(
 const group = (html: string) => `<span class="icon-group">${html}</span>`
 
 /** The dice folder colours dice by damage family: physical, an element, or healing. */
-function dieColour(text: string, at: number): string {
+function dieColour({ text, at }: { text: string; at: number }) {
   const after = text.slice(at, at + 70).match(NEAR_TYPE)
   const before = after ? null : text.slice(Math.max(0, at - 70), at).match(NEAR_TYPE)
   const hit = after ?? before
@@ -160,17 +154,17 @@ function dieColour(text: string, at: number): string {
  * Decorates already-rendered inline HTML (escaped, with <b>/<i>) with a die icon
  * before every dice expression and a damage-type icon after every "x damage".
  */
-export function iconifyHtml(html: string): string {
+export function iconifyHtml(html: string) {
   return html.replace(
     TOKEN,
     (match, paren: string, dice: string | undefined, phrase: string | undefined, punct: string, offset: number) => {
       if (dice) {
         const size = dice.slice(dice.indexOf('d'))
-        const file = size === 'd20' ? 'd20' : `${size}-${dieColour(html, offset + match.length)}`
-        return group(`${paren}${icon(`dice/${file}.png`, 'die', size)}${dice}`)
+        const file = size === 'd20' ? 'd20' : `${size}-${dieColour({ text: html, at: offset + match.length })}`
+        return group(`${paren}${icon({ file: `dice/${file}.png`, kind: 'die', alt: size })}${dice}`)
       }
       const type = phrase!.split(/\s+/)[0].toLowerCase()
-      return group(`${phrase}${icon(`damage-types/${type}-damage.png`, 'damage', type)}${punct}`)
+      return group(`${phrase}${icon({ file: `damage-types/${type}-damage.png`, kind: 'damage', alt: type })}${punct}`)
     },
   )
 }

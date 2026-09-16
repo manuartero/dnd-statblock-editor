@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks'
-import { ABILITIES, modifier } from '../model'
-import type { SaveRecord } from '../persist'
-import type { Library, Outcome } from '../library'
-import { relativeTime } from '../time'
-import s from './LoadScreen.module.css'
+import { ABILITIES, modifier } from './creature.model'
+import type { SaveRecord } from './save-record.model'
+import type { Library, Outcome } from './library.hook'
+import { relativeTime } from './time.format'
+import s from './load-screen.module.css'
 
-interface Props {
+type Props = {
   library: Library
   onClose: () => void
 }
@@ -138,7 +138,7 @@ export function LoadScreen({ library, onClose }: Props) {
                 current={record.id === library.currentSaveId}
                 onLoad={() => load(record.id)}
                 onDuplicate={() => report(library.duplicate(record.id))}
-                onRename={(name) => report(library.rename(record.id, name))}
+                onRename={(name) => report(library.rename({ id: record.id, name }))}
                 onDelete={() => report(library.remove(record.id))}
               />
             ))}
@@ -149,7 +149,7 @@ export function LoadScreen({ library, onClose }: Props) {
   )
 }
 
-interface CardProps {
+type CardProps = {
   record: SaveRecord
   current: boolean
   onLoad: () => void

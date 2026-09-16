@@ -1,4 +1,5 @@
-import { uid, type AttrLine, type Creature, type Entry, type Section, type SectionKind } from './model'
+import { uid } from './creature.model'
+import type { AttrLine, Creature, Entry, Section, SectionKind } from './creature.model'
 
 /**
  * Plain-TS parsing of creatures and save records. No schema library: every
@@ -8,7 +9,7 @@ import { uid, type AttrLine, type Creature, type Entry, type Section, type Secti
 
 export const SCHEMA_VERSION = 1
 
-export interface SaveRecord {
+export type SaveRecord = {
   schemaVersion: typeof SCHEMA_VERSION
   id: string
   /** ISO timestamps. */
@@ -29,11 +30,11 @@ const SECTION_KINDS = new Set<SectionKind>([
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v)
 
-const str = (v: unknown, fallback = ''): string => (typeof v === 'string' ? v : fallback)
+const str = (v: unknown) => (typeof v === 'string' ? v : '')
 
-const id = (v: unknown): string => (typeof v === 'string' && v.length > 0 ? v : uid())
+const id = (v: unknown) => (typeof v === 'string' && v.length > 0 ? v : uid())
 
-const score = (v: unknown): number => {
+const score = (v: unknown) => {
   const n = typeof v === 'number' ? v : typeof v === 'string' ? parseInt(v, 10) : NaN
   return Number.isFinite(n) ? Math.trunc(n) : 10
 }
@@ -100,10 +101,16 @@ export function parseCreature(input: unknown): Creature | null {
   }
 }
 
-export const newSaveId = (): string =>
+export const newSaveId = () =>
   typeof crypto !== 'undefined' && 'randomUUID' in crypto ? crypto.randomUUID() : `${Date.now().toString(36)}-${uid()}`
 
-export function makeRecord(creature: Creature, base?: Pick<SaveRecord, 'id' | 'savedAt'>): SaveRecord {
+type RecordInput = {
+  creature: Creature
+  /** An existing save to update in place; omit for a brand-new record. */
+  base?: Pick<SaveRecord, 'id' | 'savedAt'>
+}
+
+export function makeRecord({ creature, base }: RecordInput): SaveRecord {
   const now = new Date().toISOString()
   return {
     schemaVersion: SCHEMA_VERSION,
@@ -141,25 +148,25 @@ export function parseSaveRecord(input: unknown): ParseResult {
   const creature = parseCreature(raw)
   if (!creature) return { ok: false, error: 'This does not look like a stat block: it needs at least a name.' }
 
-  const savedAt = isoOr(migrated.savedAt)
+  const savedAt = isoOr({ value: migrated.savedAt })
   return {
     ok: true,
     record: {
       schemaVersion: SCHEMA_VERSION,
       id: id(migrated.id),
       savedAt,
-      updatedAt: isoOr(migrated.updatedAt, savedAt),
+      updatedAt: isoOr({ value: migrated.updatedAt, fallback: savedAt }),
       creature,
     },
   }
 }
 
-const isoOr = (v: unknown, fallback = new Date().toISOString()): string =>
-  typeof v === 'string' && Number.isFinite(Date.parse(v)) ? v : fallback
+const isoOr = ({ value, fallback = new Date().toISOString() }: { value: unknown; fallback?: string }) =>
+  typeof value === 'string' && Number.isFinite(Date.parse(value)) ? value : fallback
 
 /** The JSON file format is the save record itself. */
-export function exportCreatureJson(creature: Creature, base?: Pick<SaveRecord, 'id' | 'savedAt'>): string {
-  return JSON.stringify(makeRecord(creature, base), null, 2)
+export function exportCreatureJson(input: RecordInput) {
+  return JSON.stringify(makeRecord(input), null, 2)
 }
 
 export function importCreatureJson(text: string): ParseResult {
@@ -174,7 +181,7 @@ export function importCreatureJson(text: string): ParseResult {
 
 export const fileSlug = (name: string) => name.trim().replace(/\s+/g, '-').toLowerCase() || 'creature'
 
-export function downloadJson(json: string, filename: string) {
+export function downloadJson({ json, filename }: { json: string; filename: string }) {
   const blob = new Blob([json], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
