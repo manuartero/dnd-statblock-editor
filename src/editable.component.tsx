@@ -14,6 +14,8 @@ type Props = {
   /** Also decorate dice and damage types with game icons (rich only). */
   icons?: boolean
   placeholder?: string
+  /** Accessible name; falls back to the placeholder. */
+  label?: string
 }
 
 /**
@@ -29,6 +31,7 @@ export function Editable({
   rich = false,
   icons = false,
   placeholder,
+  label,
 }: Props) {
   const ref = useRef<HTMLElement>(null)
   const [editing, setEditing] = useState(false)
@@ -53,6 +56,9 @@ export function Editable({
       ref={ref as never}
       class={cls}
       contentEditable
+      role="textbox"
+      aria-label={label ?? placeholder}
+      aria-multiline={multiline}
       spellcheck={false}
       data-placeholder={placeholder}
       onFocus={() => setEditing(true)}

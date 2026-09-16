@@ -2,6 +2,7 @@ import { useMemo } from 'preact/hooks'
 import {
   ABILITIES,
   INLINE_ATTRIBUTES,
+  SECTION_LABELS,
   makeEntry,
   modifier,
 } from './creature.model'
@@ -42,12 +43,14 @@ export function StatBlock({ creature, update, openTextLibrary }: BlockProps) {
             class={s.name}
             value={creature.name}
             placeholder="Name"
+            label="Creature name"
             onChange={(name) => update((c) => ({ ...c, name }))}
           />
           <Editable
             class={s.subtitle}
             value={creature.subtitle}
             placeholder="Size type, alignment"
+            label="Size, type and alignment"
             onChange={(subtitle) => update((c) => ({ ...c, subtitle }))}
           />
         </header>
@@ -85,34 +88,35 @@ function CoreBlock({ creature, update }: Props) {
   const set = (key: keyof typeof core) => (value: string) =>
     update((c) => ({ ...c, core: { ...c.core!, [key]: value } }))
   return (
-    <div class={s.props}>
+    <dl class={s.props}>
       <div class={s.prop}>
         <RemoveButton onClick={() => update((c) => ({ ...c, core: null }))} title="Remove AC/HP/Speed" />
-        <span class={s.propLabel}>Armor Class</span>
+        <dt class={s.propLabel}>Armor Class</dt>
         {creature.icons && <img class="icon icon-ac" src={AC_ICON} alt="" draggable={false} />}
-        <Editable value={core.ac} onChange={set('ac')} placeholder="10" />
+        <Editable tag="dd" label="Armor Class" value={core.ac} onChange={set('ac')} placeholder="10" />
       </div>
       <div class={s.prop}>
-        <span class={s.propLabel}>Hit Points</span>
-        <Editable value={core.hp} onChange={set('hp')} placeholder="10 (2d8 + 1)" />
+        <dt class={s.propLabel}>Hit Points</dt>
+        <Editable tag="dd" label="Hit Points" value={core.hp} onChange={set('hp')} placeholder="10 (2d8 + 1)" />
       </div>
       <div class={s.prop}>
-        <span class={s.propLabel}>Speed</span>
-        <Editable value={core.speed} onChange={set('speed')} placeholder="30 ft." />
+        <dt class={s.propLabel}>Speed</dt>
+        <Editable tag="dd" label="Speed" value={core.speed} onChange={set('speed')} placeholder="30 ft." />
       </div>
-    </div>
+    </dl>
   )
 }
 
 function Abilities({ creature, update }: Props) {
   return (
-    <div class={s.abilities}>
+    <dl class={s.abilities}>
       {ABILITIES.map((key) => (
         <div key={key}>
-          <div class={s.abilityLabel}>{key.toUpperCase()}</div>
-          <div>
+          <dt class={s.abilityLabel}>{key.toUpperCase()}</dt>
+          <dd>
             <Editable
               class={s.abilityScore}
+              label={`${key.toUpperCase()} score`}
               value={String(creature.abilities[key])}
               onChange={(v) => {
                 const n = parseInt(v, 10)
@@ -123,10 +127,10 @@ function Abilities({ creature, update }: Props) {
               }}
             />{' '}
             ({modifier(creature.abilities[key])})
-          </div>
+          </dd>
         </div>
       ))}
-    </div>
+    </dl>
   )
 }
 
@@ -154,18 +158,22 @@ function Attributes({ creature, update }: Props) {
     update((c) => ({ ...c, attributes: c.attributes.filter((l) => l.id !== id) }))
 
   return (
-    <div class={s.props}>
+    <dl class={s.props}>
       {rows.map((row) => (
         <div key={row[0].id} class={row.length > 1 ? s.propInline : undefined}>
           {row.map((line) => (
             <div key={line.id} class={s.prop}>
               <RemoveButton onClick={() => removeLine(line.id)} title={`Remove ${line.label}`} />
               <Editable
+                tag="dt"
                 class={s.propLabel}
+                label="Attribute name"
                 value={line.label}
                 onChange={(label) => setLine({ id: line.id, patch: { label } })}
               />
               <Editable
+                tag="dd"
+                label={line.label || 'Attribute value'}
                 value={line.value}
                 onChange={(value) => setLine({ id: line.id, patch: { value } })}
                 placeholder="…"
@@ -174,7 +182,7 @@ function Attributes({ creature, update }: Props) {
           ))}
         </div>
       ))}
-    </div>
+    </dl>
   )
 }
 
@@ -215,17 +223,20 @@ function SectionView({
     if (section.kind === 'spellcasting') {
       const slots = spellSlotIcons(name)
       return (
-        slots &&
-        Array.from({ length: slots.count }, (_, i) => (
-          <img key={i} class="icon icon-slot" src={slots.src} alt={slots.alt} draggable={false} />
-        ))
+        slots && (
+          <span role="img" aria-label={`${slots.count} ${slots.alt}${slots.count === 1 ? '' : 's'}`}>
+            {Array.from({ length: slots.count }, (_, i) => (
+              <img key={i} class="icon icon-slot" src={slots.src} alt={slots.alt} draggable={false} />
+            ))}
+          </span>
+        )
       )
     }
     return null
   }
 
   return (
-    <section class={s.section}>
+    <section class={s.section} aria-label={section.title || SECTION_LABELS[section.kind]}>
       <div class={s.sectionHead}>
         <RemoveButton onClick={removeSection} title="Remove section" />
         {hasHeading && (
@@ -234,6 +245,7 @@ function SectionView({
             class={s.sectionTitle}
             value={section.title}
             placeholder="Section title"
+            label="Section title"
             onChange={(title) => patchSection({ title })}
           />
         )}
@@ -246,6 +258,7 @@ function SectionView({
             rich
             icons={icons}
             placeholder="Intro paragraph"
+            label="Intro paragraph"
             onChange={(intro) => patchSection({ intro })}
           />
         )}
@@ -258,6 +271,7 @@ function SectionView({
               class={s.entryName}
               value={entry.name}
               placeholder="Name"
+              label="Entry name"
               onChange={(name) => patchEntry({ id: entry.id, patch: { name } })}
             />
             {'\u2060' /* word joiner: never wrap between the name and its icon */}
@@ -269,6 +283,7 @@ function SectionView({
             rich
             icons={icons}
             placeholder="Description. Use *italic* and **bold**."
+            label={`${entry.name || 'Entry'} description`}
             onChange={(text) => patchEntry({ id: entry.id, patch: { text } })}
           />
         </p>

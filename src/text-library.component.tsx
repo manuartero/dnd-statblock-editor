@@ -25,6 +25,8 @@ const plain = (text: string) => text.replace(/\*/g, '')
 
 const RESOLVED = LIBRARY.map(resolve)
 
+const groupId = (category: string) => `snippet-group-${category.toLowerCase().replace(/\s+/g, '-')}`
+
 export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<Category | null>(null)
@@ -96,9 +98,11 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
 
   return (
     <div class={s.backdrop} onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div class={s.dialog} role="dialog" aria-modal="true" aria-label={heading} onKeyDown={onKeyDown}>
+      <div class={s.dialog} role="dialog" aria-modal="true" aria-labelledby="text-library-title" onKeyDown={onKeyDown}>
         <header class={s.head}>
-          <h2 class={s.heading}>{heading}</h2>
+          <h2 id="text-library-title" class={s.heading}>
+            {heading}
+          </h2>
         </header>
 
         <input
@@ -109,18 +113,29 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
           value={query}
           onInput={(e) => search((e.currentTarget as HTMLInputElement).value)}
           aria-label="Search the library"
+          role="combobox"
+          aria-expanded={true}
+          aria-controls="text-library-results"
+          aria-activedescendant={current ? `snippet-${current.id}` : undefined}
+          aria-autocomplete="list"
           autocomplete="off"
           spellcheck={false}
         />
 
-        <div class={s.chips}>
-          <button class={category === null ? s.chipActive : s.chip} onClick={() => filter(null)} type="button">
+        <div class={s.chips} role="group" aria-label="Filter by category">
+          <button
+            class={category === null ? s.chipActive : s.chip}
+            aria-pressed={category === null}
+            onClick={() => filter(null)}
+            type="button"
+          >
             All
           </button>
           {categories.map((c) => (
             <button
               key={c}
               class={category === c ? s.chipActive : s.chip}
+              aria-pressed={category === c}
               onClick={() => filter(category === c ? null : c)}
               type="button"
             >
@@ -130,17 +145,20 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
         </div>
 
         <div class={s.body}>
-          <ul class={s.results} ref={listRef} role="listbox" aria-label="Snippets">
+          <ul id="text-library-results" class={s.results} ref={listRef} role="listbox" aria-label="Snippets">
             {groups.map((g) => (
-              <li key={g.category} class={s.group}>
-                <p class={s.groupTitle}>{g.category}</p>
-                <ul class={s.groupList}>
+              <li key={g.category} class={s.group} role="group" aria-labelledby={groupId(g.category)}>
+                <p id={groupId(g.category)} class={s.groupTitle}>
+                  {g.category}
+                </p>
+                <ul class={s.groupList} role="none">
                   {g.items.map((sn) => {
                     const index = indexOf.get(sn) ?? 0
                     const isActive = sn === current
                     return (
                       <li
                         key={sn.id}
+                        id={`snippet-${sn.id}`}
                         class={isActive ? s.rowActive : s.row}
                         data-active={isActive || undefined}
                         role="option"
@@ -158,13 +176,13 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
               </li>
             ))}
             {results.length === 0 && (
-              <li class={s.empty}>
+              <li class={s.empty} role="none">
                 Nothing matches “{query}”. Try a weapon, a trait, a class feature or a spell name.
               </li>
             )}
           </ul>
 
-          <aside class={s.preview} aria-live="polite">
+          <aside class={s.preview} aria-label="Preview">
             {current && dest ? (
               <>
                 <div class={s.sheet}>
@@ -201,7 +219,7 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
           <span>
             <kbd>esc</kbd> close
           </span>
-          <span class={s.count}>
+          <span class={s.count} aria-live="polite">
             {results.length} of {pool.length}
           </span>
         </footer>

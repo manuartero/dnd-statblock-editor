@@ -24,10 +24,12 @@ export function LookPanel({ creature, update }: Props) {
   return (
     <>
       <PanelGroup title="Columns">
-        <div class={s.segment}>
+        <div class={s.segment} role="radiogroup" aria-label="Columns">
           {([1, 2] as const).map((n) => (
             <button
               key={n}
+              role="radio"
+              aria-checked={creature.columns === n}
               class={creature.columns === n ? s.active : undefined}
               onClick={() => update((c) => ({ ...c, columns: n }))}
               type="button"
@@ -39,10 +41,12 @@ export function LookPanel({ creature, update }: Props) {
       </PanelGroup>
 
       <PanelGroup title="Iconography">
-        <div class={s.segment}>
+        <div class={s.segment} role="radiogroup" aria-label="Iconography">
           {([false, true] as const).map((on) => (
             <button
               key={String(on)}
+              role="radio"
+              aria-checked={creature.icons === on}
               class={creature.icons === on ? s.active : undefined}
               onClick={() => update((c) => ({ ...c, icons: on }))}
               type="button"

@@ -16,8 +16,8 @@ export function Rail({ panel, dirty, onToggle }: Props) {
       key={id}
       id={`rail-${id}`}
       class={`${s.railButton} ${panel === id ? s.railActive : ''}`}
-      aria-pressed={panel === id}
-      aria-controls="menu-panel"
+      aria-expanded={panel === id}
+      aria-controls={panel === id ? 'menu-panel' : undefined}
       title={title}
       onClick={() => onToggle(id)}
       type="button"
@@ -30,8 +30,9 @@ export function Rail({ panel, dirty, onToggle }: Props) {
 
   return (
     <nav class={s.rail} aria-label="Editor tools">
-      <div class={s.mark} title="Stat Block">
+      <div class={s.mark}>
         <Icon name="d20" size={26} />
+        <span class="sr-only">Stat Block editor</span>
       </div>
       <div class={s.railGroup}>{EDIT_ITEMS.map(button)}</div>
       <div class={s.railGroup}>{FILE_ITEMS.map(button)}</div>

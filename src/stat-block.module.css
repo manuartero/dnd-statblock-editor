@@ -95,7 +95,13 @@
 
 /* property lines */
 .props {
+  margin: 0;
   color: var(--red);
+}
+.prop dt,
+.prop dd {
+  display: inline;
+  margin: 0;
 }
 .prop {
   margin: 1px 0;
@@ -119,6 +125,9 @@
   text-align: center;
   color: var(--red);
   margin: 4px 0;
+}
+.abilities dd {
+  margin: 0;
 }
 .abilityLabel {
   font-weight: 700;
@@ -204,7 +213,7 @@
   height: 1.05em;
   vertical-align: -0.18em;
 }
-.entryHead > :global(.icon-slot:first-of-type) {
+.entryHead :global(.icon-slot:first-of-type) {
   margin-left: 0.3em;
 }
 
@@ -246,6 +255,9 @@
 .prop:hover > .remove,
 .section:hover > .sectionHead > .remove {
   opacity: 0.85;
+}
+.remove:focus-visible {
+  opacity: 1;
 }
 .sectionHead {
   position: relative;

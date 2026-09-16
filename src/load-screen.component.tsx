@@ -86,6 +86,7 @@ export function LoadScreen({ library, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="library-title"
+        aria-describedby="library-count"
         tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
       >
@@ -94,7 +95,7 @@ export function LoadScreen({ library, onClose }: Props) {
             <h2 id="library-title" class={s.title}>
               Library
             </h2>
-            <p class={s.count}>
+            <p id="library-count" class={s.count}>
               {count === 0 ? 'No saved creatures' : count === 1 ? 'One creature' : `${count} creatures`}
             </p>
           </div>
@@ -114,7 +115,11 @@ export function LoadScreen({ library, onClose }: Props) {
           </button>
         </header>
 
-        {notice && <p class={`${s.notice} ${notice.ok ? '' : s.noticeError}`}>{notice.message}</p>}
+        {notice && (
+          <p class={`${s.notice} ${notice.ok ? '' : s.noticeError}`} role="status">
+            {notice.message}
+          </p>
+        )}
 
         {count === 0 ? (
           <div class={s.empty}>
@@ -163,6 +168,7 @@ const compact = (value: string) => value.trim().split(/\s+/)[0] ?? ''
 
 function SaveCard({ record, current, onLoad, onDuplicate, onRename, onDelete }: CardProps) {
   const { creature } = record
+  const name = creature.name || 'Unnamed creature'
   const [renaming, setRenaming] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [draft, setDraft] = useState(creature.name)
@@ -219,7 +225,7 @@ function SaveCard({ record, current, onLoad, onDuplicate, onRename, onDelete }: 
             }}
           />
         ) : (
-          <h3 class={s.name}>{creature.name || 'Unnamed creature'}</h3>
+          <h3 class={s.name}>{name}</h3>
         )}
         <p class={s.subtitle}>{creature.subtitle || ' '}</p>
       </div>
@@ -229,32 +235,34 @@ function SaveCard({ record, current, onLoad, onDuplicate, onRename, onDelete }: 
       </svg>
 
       {stats.length > 0 && (
-        <p class={s.stats}>
+        <dl class={s.stats}>
           {stats.map(([label, value]) => (
-            <span key={label} class={s.stat}>
-              <b>{label}</b> {value}
-            </span>
+            <div key={label} class={s.stat}>
+              <dt>{label}</dt> <dd>{value}</dd>
+            </div>
           ))}
-        </p>
+        </dl>
       )}
 
-      <div class={s.abilities}>
+      <dl class={s.abilities}>
         {ABILITIES.map((key) => (
-          <span key={key}>
-            <b>{key.toUpperCase()}</b>
-            <span>
+          <div key={key}>
+            <dt>{key.toUpperCase()}</dt>
+            <dd>
               {creature.abilities[key]} <small>({modifier(creature.abilities[key])})</small>
-            </span>
-          </span>
+            </dd>
+          </div>
         ))}
-      </div>
+      </dl>
 
       <footer class={s.cardFoot}>
         {confirming ? (
           <>
-            <span class={s.confirmText}>Delete this creature?</span>
+            <span class={s.confirmText} role="alert">
+              Delete this creature?
+            </span>
             <span class={s.actions}>
-              <button class={`${s.action} ${s.danger}`} onClick={onDelete} type="button">
+              <button class={`${s.action} ${s.danger}`} aria-label={`Delete ${name}`} onClick={onDelete} type="button">
                 Delete
               </button>
               <button class={s.action} onClick={() => setConfirming(false)} type="button" autoFocus>
@@ -268,16 +276,16 @@ function SaveCard({ record, current, onLoad, onDuplicate, onRename, onDelete }: 
               {current ? 'Open in the editor' : `Saved ${relativeTime(record.updatedAt)}`}
             </span>
             <span class={s.actions}>
-              <button class={s.action} onClick={() => setRenaming(true)} type="button">
+              <button class={s.action} aria-label={`Rename ${name}`} onClick={() => setRenaming(true)} type="button">
                 Rename
               </button>
-              <button class={s.action} onClick={onDuplicate} type="button">
+              <button class={s.action} aria-label={`Duplicate ${name}`} onClick={onDuplicate} type="button">
                 Duplicate
               </button>
-              <button class={s.action} onClick={() => setConfirming(true)} type="button">
+              <button class={s.action} aria-label={`Delete ${name}`} onClick={() => setConfirming(true)} type="button">
                 Delete
               </button>
-              <button class={s.load} onClick={onLoad} type="button">
+              <button class={s.load} aria-label={`Load ${name}`} onClick={onLoad} type="button">
                 Load
               </button>
             </span>

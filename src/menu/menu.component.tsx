@@ -82,9 +82,11 @@ export function Menu({
       <Rail panel={panel} dirty={library.dirty} onToggle={toggle} />
 
       {panel && (
-        <aside id="menu-panel" class={s.panel} aria-label={PANEL_TITLES[panel]} onKeyDown={onPanelKeyDown}>
+        <aside id="menu-panel" class={s.panel} aria-labelledby="menu-panel-title" onKeyDown={onPanelKeyDown}>
           <header class={s.panelHead}>
-            <h1 class={s.panelTitle}>{PANEL_TITLES[panel]}</h1>
+            <h2 id="menu-panel-title" class={s.panelTitle}>
+              {PANEL_TITLES[panel]}
+            </h2>
             <button class={s.close} onClick={() => setPanel(null)} aria-label="Close panel" type="button">
               <Icon name="close" size={18} />
             </button>
