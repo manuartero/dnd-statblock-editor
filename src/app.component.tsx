@@ -6,7 +6,7 @@ import type { ResolvedSnippet } from './text-library.model'
 import { readCreatureFromUrl, writeCreatureToUrl } from './url.service'
 import { useLibrary } from './library.hook'
 import { StatBlock } from './stat-block.component'
-import { Menu } from './menu.component'
+import { Menu } from './menu/menu.component'
 import { LoadScreen } from './load-screen.component'
 import { TextLibrary } from './text-library.component'
 
