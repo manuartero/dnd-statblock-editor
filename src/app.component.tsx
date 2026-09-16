@@ -37,6 +37,9 @@ export function App() {
 
   const library = useLibrary({ creature, setCreature, currentSaveId, setCurrentSaveId })
 
+  // Stable identity: LoadScreen re-subscribes its Escape listener whenever this changes.
+  const closeLibrary = useCallback(() => setLibraryOpen(false), [])
+
   const flash = useCallback((msg: string) => {
     setStatus(msg)
     clearTimeout(statusTimer.current)
@@ -84,7 +87,7 @@ export function App() {
       <main class="canvas">
         <StatBlock creature={creature} update={update} openTextLibrary={(section) => setPicker({ into: section })} />
       </main>
-      {libraryOpen && <LoadScreen library={library} onClose={() => setLibraryOpen(false)} />}
+      {libraryOpen && <LoadScreen library={library} onClose={closeLibrary} />}
       {picker && (
         <TextLibrary creature={creature} into={picker.into} onClose={() => setPicker(null)} onInsert={insert} />
       )}

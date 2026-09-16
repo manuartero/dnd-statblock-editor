@@ -57,11 +57,21 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
 
   /** Results in display order; arrow keys walk this list. */
   const results = useMemo(() => groups.flatMap((g) => g.items), [groups])
+  const indexOf = useMemo(() => new Map(results.map((sn, i) => [sn, i])), [results])
 
   const current: ResolvedSnippet | undefined = results[Math.min(active, results.length - 1)]
 
+  // A new search or filter starts back at the top of the list.
+  const search = (q: string) => {
+    setQuery(q)
+    setActive(0)
+  }
+  const filter = (c: Category | null) => {
+    setCategory(c)
+    setActive(0)
+  }
+
   useEffect(() => searchRef.current?.focus(), [])
-  useEffect(() => setActive(0), [results])
   useEffect(() => {
     listRef.current?.querySelector('[data-active]')?.scrollIntoView({ block: 'nearest' })
   }, [active, results])
@@ -98,21 +108,21 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
           type="search"
           placeholder="Search a weapon, trait, feature or spell…"
           value={query}
-          onInput={(e) => setQuery((e.currentTarget as HTMLInputElement).value)}
+          onInput={(e) => search((e.currentTarget as HTMLInputElement).value)}
           aria-label="Search the library"
           autocomplete="off"
           spellcheck={false}
         />
 
         <div class={s.chips}>
-          <button class={category === null ? s.chipActive : s.chip} onClick={() => setCategory(null)} type="button">
+          <button class={category === null ? s.chipActive : s.chip} onClick={() => filter(null)} type="button">
             All
           </button>
           {categories.map((c) => (
             <button
               key={c}
               class={category === c ? s.chipActive : s.chip}
-              onClick={() => setCategory(category === c ? null : c)}
+              onClick={() => filter(category === c ? null : c)}
               type="button"
             >
               {c}
@@ -127,7 +137,7 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
                 <p class={s.groupTitle}>{g.category}</p>
                 <ul class={s.groupList}>
                   {g.items.map((sn) => {
-                    const index = results.indexOf(sn)
+                    const index = indexOf.get(sn) ?? 0
                     const isActive = sn === current
                     return (
                       <li
