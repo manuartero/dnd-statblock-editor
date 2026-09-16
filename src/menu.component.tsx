@@ -127,7 +127,6 @@ export function Menu({
     setStatus('Rendering…')
     node.dataset.exporting = 'true'
     try {
-      // Only needed for this one action: keep the rasteriser out of the initial bundle.
       const { toPng } = await import('html-to-image')
       const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true })
       const a = document.createElement('a')

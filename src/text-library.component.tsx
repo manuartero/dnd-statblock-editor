@@ -61,7 +61,6 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
 
   const current: ResolvedSnippet | undefined = results[Math.min(active, results.length - 1)]
 
-  // A new search or filter starts back at the top of the list.
   const search = (q: string) => {
     setQuery(q)
     setActive(0)

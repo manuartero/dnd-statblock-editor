@@ -37,7 +37,6 @@ export function App() {
 
   const library = useLibrary({ creature, setCreature, currentSaveId, setCurrentSaveId })
 
-  // Stable identity: LoadScreen re-subscribes its Escape listener whenever this changes.
   const closeLibrary = useCallback(() => setLibraryOpen(false), [])
 
   const flash = useCallback((msg: string) => {
