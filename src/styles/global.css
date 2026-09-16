@@ -5,12 +5,27 @@ body {
   color: #000;
 }
 
+/* rail, optional panel, then the table: one row, the table takes what is left */
+.app {
+  display: flex;
+  align-items: stretch;
+  min-height: 100vh;
+}
+
 .canvas {
+  flex: 1;
+  min-width: 0;
   min-height: 100vh;
   box-sizing: border-box;
-  padding: 40px 290px 40px 40px;
+  padding: 40px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
   overflow-x: auto;
+}
+
+@media (max-width: 720px) {
+  .canvas {
+    padding: 20px 16px 96px;
+  }
 }
