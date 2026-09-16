@@ -4,26 +4,23 @@ import {
   INLINE_ATTRIBUTES,
   makeEntry,
   modifier,
-  type AttrLine,
-  type Creature,
-  type Entry,
-  type Section,
-} from '../model'
-import { Editable } from './Editable'
-import { AC_ICON, spellSlotIcons, weaponIcon } from '../icons'
-import s from './StatBlock.module.css'
+} from './creature.model'
+import type { AttrLine, Creature, Entry, Section } from './creature.model'
+import { Editable } from './editable.component'
+import { AC_ICON, spellSlotIcons, weaponIcon } from './icons.render'
+import s from './stat-block.module.css'
 
 /** Class marking editor-only controls; the PNG exporter strips them. */
 export const UI_ONLY = 'ui-only'
 
 type Update = (fn: (c: Creature) => Creature) => void
 
-interface Props {
+type Props = {
   creature: Creature
   update: Update
 }
 
-interface BlockProps extends Props {
+type BlockProps = Props & {
   /** Opens the text library to add an entry to the given section. */
   openTextLibrary: (section: Section) => void
 }
@@ -148,7 +145,7 @@ function Attributes({ creature, update }: Props) {
     return out
   }, [creature.attributes])
 
-  const setLine = (id: string, patch: Partial<AttrLine>) =>
+  const setLine = ({ id, patch }: { id: string; patch: Partial<AttrLine> }) =>
     update((c) => ({
       ...c,
       attributes: c.attributes.map((l) => (l.id === id ? { ...l, ...patch } : l)),
@@ -166,11 +163,11 @@ function Attributes({ creature, update }: Props) {
               <Editable
                 class={s.propLabel}
                 value={line.label}
-                onChange={(label) => setLine(line.id, { label })}
+                onChange={(label) => setLine({ id: line.id, patch: { label } })}
               />
               <Editable
                 value={line.value}
-                onChange={(value) => setLine(line.id, { value })}
+                onChange={(value) => setLine({ id: line.id, patch: { value } })}
                 placeholder="…"
               />
             </div>
@@ -200,7 +197,7 @@ function SectionView({
       ...c,
       sections: c.sections.map((sec) => (sec.id === section.id ? { ...sec, ...patch } : sec)),
     }))
-  const patchEntry = (id: string, patch: Partial<Entry>) =>
+  const patchEntry = ({ id, patch }: { id: string; patch: Partial<Entry> }) =>
     patchSection({ entries: section.entries.map((e) => (e.id === id ? { ...e, ...patch } : e)) })
   const removeEntry = (id: string) =>
     patchSection({ entries: section.entries.filter((e) => e.id !== id) })
@@ -261,7 +258,7 @@ function SectionView({
               class={s.entryName}
               value={entry.name}
               placeholder="Name"
-              onChange={(name) => patchEntry(entry.id, { name })}
+              onChange={(name) => patchEntry({ id: entry.id, patch: { name } })}
             />
             {'\u2060' /* word joiner: never wrap between the name and its icon */}
             {nameIcon(entry.name)}
@@ -272,7 +269,7 @@ function SectionView({
             rich
             icons={icons}
             placeholder="Description. Use *italic* and **bold**."
-            onChange={(text) => patchEntry(entry.id, { text })}
+            onChange={(text) => patchEntry({ id: entry.id, patch: { text } })}
           />
         </p>
       ))}

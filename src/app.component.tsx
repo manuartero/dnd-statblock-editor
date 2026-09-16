@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'preact/hooks'
-import { sampleCreature, type Creature, type Section } from './model'
-import { insertSnippet, type ResolvedSnippet } from './text-library'
-import { readCreatureFromUrl, writeCreatureToUrl } from './url'
-import { useLibrary } from './library'
-import { StatBlock } from './components/StatBlock'
-import { Menu } from './components/Menu'
-import { LoadScreen } from './components/LoadScreen'
-import { TextLibrary } from './components/TextLibrary'
+import { sampleCreature } from './creature.model'
+import type { Creature, Section } from './creature.model'
+import { insertSnippet } from './text-library.model'
+import type { ResolvedSnippet } from './text-library.model'
+import { readCreatureFromUrl, writeCreatureToUrl } from './url.service'
+import { useLibrary } from './library.hook'
+import { StatBlock } from './stat-block.component'
+import { Menu } from './menu.component'
+import { LoadScreen } from './load-screen.component'
+import { TextLibrary } from './text-library.component'
 
 /** Where the text library picker was opened from: a section, or the menu / shortcut (null). */
 type Picker = { into: Section | null }
@@ -60,7 +62,7 @@ export function App() {
   const insert = (snippet: ResolvedSnippet) => {
     // The picker may have been opened from a section that has since been removed.
     const into = picker?.into ? creature.sections.find((sec) => sec.id === picker.into!.id) ?? null : null
-    const result = insertSnippet(creature, snippet, into)
+    const result = insertSnippet({ creature, snippet, into })
     setCreature(result.creature)
     setPicker(null)
     flash(`Added ${snippet.name} to ${result.title}`)

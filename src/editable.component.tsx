@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'preact/hooks'
 import type { JSX } from 'preact'
-import { renderInline } from '../inline'
+import { renderInline } from './inline.render'
 
-interface Props {
+type Props = {
   value: string
   onChange: (value: string) => void
   tag?: keyof JSX.IntrinsicElements

@@ -5,14 +5,14 @@ import {
   destination,
   resolve,
   sectionLabel,
-  type Category,
-  type ResolvedSnippet,
-} from '../text-library'
-import { SECTION_LABELS, type Creature, type Section } from '../model'
-import { renderInline } from '../inline'
-import s from './TextLibrary.module.css'
+} from './text-library.model'
+import type { Category, ResolvedSnippet } from './text-library.model'
+import { SECTION_LABELS } from './creature.model'
+import type { Creature, Section } from './creature.model'
+import { renderInline } from './inline.render'
+import s from './text-library.module.css'
 
-interface Props {
+type Props = {
   creature: Creature
   /** Section the picker was opened from; null when opened from the menu or the shortcut. */
   into: Section | null
@@ -82,7 +82,7 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
     }
   }
 
-  const dest = current ? destination(creature, current, into) : null
+  const dest = current ? destination({ creature, snippet: current, into }) : null
   const heading = into ? `Add to ${into.title || SECTION_LABELS[into.kind]}` : 'Text library'
 
   return (
@@ -140,7 +140,7 @@ export function TextLibrary({ creature, into, onClose, onInsert }: Props) {
                         onClick={() => onInsert(sn)}
                       >
                         <span class={s.rowName}>{sn.name}</span>
-                        <span class={s.rowTag}>{sectionLabel(sn.kind, sn.section)}</span>
+                        <span class={s.rowTag}>{sectionLabel({ kind: sn.kind, section: sn.section })}</span>
                         <span class={s.rowText}>{plain(sn.text)}</span>
                       </li>
                     )

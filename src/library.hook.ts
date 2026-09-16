@@ -1,61 +1,43 @@
 import { useCallback, useMemo, useState } from 'preact/hooks'
-import type { Creature } from './model'
-import {
-  downloadJson,
-  exportCreatureJson,
-  fileSlug,
-  importCreatureJson,
-  makeRecord,
-  type SaveRecord,
-} from './persist'
-import { deleteSave, describeError, duplicateSave, listSaves, putSave, renameSave } from './storage'
+import type { Creature } from './creature.model'
+import { downloadJson, exportCreatureJson, fileSlug, importCreatureJson, makeRecord } from './save-record.model'
+import type { SaveRecord } from './save-record.model'
+import { deleteSave, describeError, duplicateSave, listSaves, putSave, renameSave } from './saves.storage'
 
-export interface Outcome {
+export type Outcome = {
   ok: boolean
   message: string
 }
 
-export interface Library {
-  saves: SaveRecord[]
-  /** The save the editor is working on, if any. */
-  currentSaveId: string | null
-  /** The editor differs from what is stored under `currentSaveId`. */
-  dirty: boolean
-  save(): Outcome
-  saveAsNew(): Outcome
-  load(id: string): void
-  duplicate(id: string): Outcome
-  rename(id: string, name: string): Outcome
-  remove(id: string): Outcome
-  exportJson(): Outcome
-  importJson(file: File): Promise<Outcome>
-}
+export type Library = ReturnType<typeof useLibrary>
 
-interface Params {
+type Params = {
   creature: Creature
   setCreature: (c: Creature) => void
   currentSaveId: string | null
   setCurrentSaveId: (id: string | null) => void
 }
 
-const ok = (message: string): Outcome => ({ ok: true, message })
-const fail = (err: unknown): Outcome => ({ ok: false, message: describeError(err) })
+const ok = (message: string) => ({ ok: true, message })
+const fail = (err: unknown) => ({ ok: false, message: describeError(err) })
 
 /** Saves, loads and the JSON round trip, all against localStorage. */
-export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSaveId }: Params): Library {
+export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSaveId }: Params) {
   const [saves, setSaves] = useState<SaveRecord[]>(() => listSaves())
   const refresh = useCallback(() => setSaves(listSaves()), [])
 
+  /** The save the editor is working on, if any. */
   const current = useMemo(() => saves.find((r) => r.id === currentSaveId) ?? null, [saves, currentSaveId])
 
-  // The creature only changes on commit (blur), so a stringify here is cheap enough.
+  // The editor differs from what is stored under `currentSaveId`. The creature only
+  // changes on commit (blur), so a stringify here is cheap enough.
   const dirty = useMemo(() => {
     if (!current) return false
     if (current.creature === creature) return false
     return JSON.stringify(current.creature) !== JSON.stringify(creature)
   }, [current, creature])
 
-  const store = (record: SaveRecord): Outcome => {
+  const store = (record: SaveRecord) => {
     try {
       putSave(record)
       setCurrentSaveId(record.id)
@@ -66,8 +48,8 @@ export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSav
     }
   }
 
-  const save = () => store(current ? makeRecord(creature, current) : makeRecord(creature))
-  const saveAsNew = () => store(makeRecord(creature))
+  const save = () => store(makeRecord({ creature, base: current ?? undefined }))
+  const saveAsNew = () => store(makeRecord({ creature }))
 
   const load = (id: string) => {
     const record = saves.find((r) => r.id === id)
@@ -76,7 +58,7 @@ export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSav
     setCurrentSaveId(record.id)
   }
 
-  const duplicate = (id: string): Outcome => {
+  const duplicate = (id: string) => {
     try {
       const copy = duplicateSave(id)
       refresh()
@@ -86,9 +68,9 @@ export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSav
     }
   }
 
-  const rename = (id: string, name: string): Outcome => {
+  const rename = ({ id, name }: { id: string; name: string }) => {
     try {
-      const renamed = renameSave(id, name)
+      const renamed = renameSave({ id, name })
       refresh()
       // Keep the editor in step when its own save is renamed and has no other pending edits.
       if (renamed && id === currentSaveId && !dirty) setCreature(renamed.creature)
@@ -98,7 +80,7 @@ export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSav
     }
   }
 
-  const remove = (id: string): Outcome => {
+  const remove = (id: string) => {
     try {
       deleteSave(id)
       if (id === currentSaveId) setCurrentSaveId(null)
@@ -109,9 +91,12 @@ export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSav
     }
   }
 
-  const exportJson = (): Outcome => {
+  const exportJson = () => {
     try {
-      downloadJson(exportCreatureJson(creature, current ?? undefined), `${fileSlug(creature.name)}.json`)
+      downloadJson({
+        json: exportCreatureJson({ creature, base: current ?? undefined }),
+        filename: `${fileSlug(creature.name)}.json`,
+      })
       return ok('JSON downloaded')
     } catch (err) {
       return fail(err)
@@ -128,7 +113,7 @@ export function useLibrary({ creature, setCreature, currentSaveId, setCurrentSav
     const parsed = importCreatureJson(text)
     if (!parsed.ok) return { ok: false, message: parsed.error }
     // Imported files become a new save; the id in the file is not trusted to be unique.
-    const record = makeRecord(parsed.record.creature)
+    const record = makeRecord({ creature: parsed.record.creature })
     const outcome = store(record)
     if (!outcome.ok) return outcome
     setCreature(record.creature)

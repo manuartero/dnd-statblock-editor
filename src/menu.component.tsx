@@ -8,14 +8,13 @@ import {
   insertSection,
   makeSection,
   sampleCreature,
-  type Creature,
-  type SectionKind,
-} from '../model'
-import type { Library, Outcome } from '../library'
-import { relativeTime } from '../time'
-import s from './Menu.module.css'
+} from './creature.model'
+import type { Creature, SectionKind } from './creature.model'
+import type { Library, Outcome } from './library.hook'
+import { relativeTime } from './time.format'
+import s from './menu.module.css'
 
-interface Props {
+type Props = {
   creature: Creature
   update: (fn: (c: Creature) => Creature) => void
   replace: (c: Creature) => void
@@ -67,7 +66,7 @@ export function Menu({
       : `Saved ${relativeTime(current.updatedAt)}`
 
   const addSection = (kind: SectionKind) =>
-    update((c) => ({ ...c, sections: insertSection(c.sections, makeSection(kind)) }))
+    update((c) => ({ ...c, sections: insertSection({ sections: c.sections, section: makeSection(kind) }) }))
 
   const addAttribute = (label: string) =>
     update((c) => ({ ...c, attributes: [...c.attributes, makeAttribute(label)] }))
